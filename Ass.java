@@ -4,18 +4,15 @@ import java.awt.*;
 public class Gui {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Login and Calculator");
-        frame.setSize(800, 600);
+        frame.setSize(500, 250);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Create login panel with abstract gradient background
         JPanel loginPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                // Create an abstract colorful gradient
                 Graphics2D g2d = (Graphics2D) g;
-                GradientPaint gradient = new GradientPaint(0, 0, new Color(255, 102, 102), // Red color
-                        getWidth(), getHeight(), new Color(102, 204, 255)); // Light blue color
+                GradientPaint gradient = new GradientPaint(0, 0, new Color(255, 255, 102), getWidth(), getHeight(), new Color(102, 204, 255));
                 g2d.setPaint(gradient);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
             }
@@ -23,7 +20,7 @@ public class Gui {
         loginPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // Add spacing between components
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel usernameLabel = new JLabel("Username:");
@@ -46,11 +43,10 @@ public class Gui {
         gbc.gridy = 1;
         loginPanel.add(passwordField, gbc);
 
-        // Invisible Show Password checkbox
         JCheckBox showPassword = new JCheckBox("Show Password");
-        showPassword.setBackground(new Color(173, 216, 230)); // Match panel background
-        showPassword.setOpaque(false); // Make the checkbox itself invisible
-        showPassword.setBorderPainted(false); // Remove border
+        showPassword.setBackground(new Color(173, 216, 230));
+        showPassword.setOpaque(false);
+        showPassword.setBorderPainted(false);
         gbc.gridx = 1;
         gbc.gridy = 2;
         loginPanel.add(showPassword, gbc);
@@ -60,27 +56,23 @@ public class Gui {
         gbc.gridy = 3;
         loginPanel.add(loginButton, gbc);
 
-        // Add the login panel to the frame
         frame.add(loginPanel);
 
-        // Toggle password visibility based on the checkbox state
         showPassword.addActionListener(e -> {
             if (showPassword.isSelected()) {
-                passwordField.setEchoChar((char) 0); // Show password
+                passwordField.setEchoChar((char) 0);
             } else {
-                passwordField.setEchoChar('*'); // Hide password
+                passwordField.setEchoChar('*');
             }
         });
 
         loginButton.addActionListener(e -> {
-            String username = usernameField.getText().toLowerCase();  // Convert to lowercase
-            String password = new String(passwordField.getPassword()).toLowerCase(); // Convert to lowercase
+            String username = usernameField.getText().toLowerCase();
+            String password = new String(passwordField.getPassword()).toLowerCase();
 
-            // Check if username and password match the pre-defined ones (case-insensitive)
             if ("adam".equals(username) && "tohadam".equals(password)) {
-                JOptionPane.showMessageDialog(frame, "Login Successful!");
-                loginPanel.setVisible(false); // Hide the login panel
-                showCalculator(frame); // Show the calculator panel
+                loginPanel.setVisible(false);
+                showCalculator(frame);
             } else {
                 JOptionPane.showMessageDialog(frame, "Invalid username or password!", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
@@ -89,20 +81,19 @@ public class Gui {
         frame.setVisible(true);
     }
 
-    // Method to show the calculator after successful login
     private static void showCalculator(JFrame frame) {
-        // Create a new panel to display the calculator
         JPanel calculatorPanel = new JPanel();
         calculatorPanel.setLayout(new BorderLayout());
 
         JTextField resultField = new JTextField();
         resultField.setEditable(false);
+        resultField.setFont(new Font("Arial", Font.PLAIN, 36));
+        resultField.setHorizontalAlignment(SwingConstants.RIGHT);
         calculatorPanel.add(resultField, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(4, 4, 5, 5));  // A grid layout with 4x4 buttons
+        buttonPanel.setLayout(new GridLayout(4, 4, 5, 5));
 
-        // Buttons for the calculator
         String[] buttons = {"7", "8", "9", "/",
                              "4", "5", "6", "*",
                              "1", "2", "3", "-",
@@ -110,16 +101,14 @@ public class Gui {
 
         for (String text : buttons) {
             JButton button = new JButton(text);
-            button.setFont(new Font("Arial", Font.PLAIN, 24)); // Set a bigger font for clarity
+            button.setFont(new Font("Arial", Font.PLAIN, 24));
             button.addActionListener(e -> {
                 String currentText = resultField.getText();
                 if (text.equals("C")) {
-                    resultField.setText(""); // Clear the text field
+                    resultField.setText("");
                 } else {
-                    // Add the number or operator to the result field
                     if (text.equals("=")) {
                         try {
-                            // Evaluate the expression and show result immediately
                             resultField.setText(String.valueOf(evaluateExpression(currentText)));
                         } catch (Exception ex) {
                             resultField.setText("Error");
@@ -133,13 +122,11 @@ public class Gui {
         }
 
         calculatorPanel.add(buttonPanel, BorderLayout.CENTER);
-        frame.add(calculatorPanel, BorderLayout.SOUTH);
-        frame.revalidate();  // Refresh the frame to show the calculator
+        frame.add(calculatorPanel, BorderLayout.CENTER);
+        frame.revalidate();
     }
 
-    // Method to evaluate the expression without decimals
     private static int evaluateExpression(String expression) {
-        // If the expression contains an operator and operands, calculate the result
         if (expression.contains("+")) {
             String[] parts = expression.split("\\+");
             return Integer.parseInt(parts[0]) + Integer.parseInt(parts[1]);
@@ -155,7 +142,7 @@ public class Gui {
             if (denominator != 0) {
                 return Integer.parseInt(parts[0]) / denominator;
             } else {
-                return 0; // Avoid division by zero
+                return 0;
             }
         }
         return 0;
