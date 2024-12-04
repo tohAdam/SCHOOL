@@ -1,247 +1,163 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-public class Ass {
-
+public class Gui {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginCalculatorApp::createLoginWindow);
-    }
+        JFrame frame = new JFrame("Login and Calculator");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    private static void createLoginWindow() {
-        JFrame loginFrame = new JFrame("Login");
-        loginFrame.setSize(300, 200);
-        loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        loginFrame.setLocationRelativeTo(null);
-
-        JPanel loginPanel = new JPanel();
-        loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
-        loginPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JPanel usernamePanel = new JPanel();
-        JLabel usernameLabel = new JLabel("Username:");
-        JTextField usernameField = new JTextField(15);
-        usernamePanel.add(usernameLabel);
-        usernamePanel.add(usernameField);
-        usernamePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JPanel passwordPanel = new JPanel();
-        JLabel passwordLabel = new JLabel("Password:");
-        JPasswordField passwordField = new JPasswordField(15);
-        passwordPanel.add(passwordLabel);
-        passwordPanel.add(passwordField);
-        passwordPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JButton loginButton = new JButton("Login");
-        loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        loginPanel.add(Box.createVerticalStrut(20));
-        loginPanel.add(usernamePanel);
-        loginPanel.add(Box.createVerticalStrut(10));
-        loginPanel.add(passwordPanel);
-        loginPanel.add(Box.createVerticalStrut(20));
-        loginPanel.add(loginButton);
-
-        loginFrame.add(loginPanel);
-        loginFrame.setVisible(true);
-
-        loginButton.addActionListener(new ActionListener() {
+        // Create login panel with abstract gradient background
+        JPanel loginPanel = new JPanel() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
-                String password = new String(passwordField.getPassword());
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Create an abstract colorful gradient
+                Graphics2D g2d = (Graphics2D) g;
+                GradientPaint gradient = new GradientPaint(0, 0, new Color(255, 102, 102), // Red color
+                        getWidth(), getHeight(), new Color(102, 204, 255)); // Light blue color
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        loginPanel.setLayout(new GridBagLayout());
 
-                if ("adam".equals(username) && "adam".equals(password)) {
-                    loginFrame.dispose();
-                    createCalculatorWindow();
-                } else {
-                    JOptionPane.showMessageDialog(loginFrame, "Invalid Username or Password", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10); // Add spacing between components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel usernameLabel = new JLabel("Username:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        loginPanel.add(usernameLabel, gbc);
+
+        JTextField usernameField = new JTextField(20);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        loginPanel.add(usernameField, gbc);
+
+        JLabel passwordLabel = new JLabel("Password:");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        loginPanel.add(passwordLabel, gbc);
+
+        JPasswordField passwordField = new JPasswordField(20);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        loginPanel.add(passwordField, gbc);
+
+        // Invisible Show Password checkbox
+        JCheckBox showPassword = new JCheckBox("Show Password");
+        showPassword.setBackground(new Color(173, 216, 230)); // Match panel background
+        showPassword.setOpaque(false); // Make the checkbox itself invisible
+        showPassword.setBorderPainted(false); // Remove border
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        loginPanel.add(showPassword, gbc);
+
+        JButton loginButton = new JButton("Log In");
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        loginPanel.add(loginButton, gbc);
+
+        // Add the login panel to the frame
+        frame.add(loginPanel);
+
+        // Toggle password visibility based on the checkbox state
+        showPassword.addActionListener(e -> {
+            if (showPassword.isSelected()) {
+                passwordField.setEchoChar((char) 0); // Show password
+            } else {
+                passwordField.setEchoChar('*'); // Hide password
             }
         });
+
+        loginButton.addActionListener(e -> {
+            String username = usernameField.getText().toLowerCase();  // Convert to lowercase
+            String password = new String(passwordField.getPassword()).toLowerCase(); // Convert to lowercase
+
+            // Check if username and password match the pre-defined ones (case-insensitive)
+            if ("adam".equals(username) && "tohadam".equals(password)) {
+                JOptionPane.showMessageDialog(frame, "Login Successful!");
+                loginPanel.setVisible(false); // Hide the login panel
+                showCalculator(frame); // Show the calculator panel
+            } else {
+                JOptionPane.showMessageDialog(frame, "Invalid username or password!", "Login Failed", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        frame.setVisible(true);
     }
 
-    private static void createCalculatorWindow() {
-        JFrame calculatorFrame = new JFrame("Calculator");
-        calculatorFrame.setSize(400, 500);
-        calculatorFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        calculatorFrame.setLocationRelativeTo(null);
-
+    // Method to show the calculator after successful login
+    private static void showCalculator(JFrame frame) {
+        // Create a new panel to display the calculator
         JPanel calculatorPanel = new JPanel();
         calculatorPanel.setLayout(new BorderLayout());
 
-        JTextField display = new JTextField();
-        display.setEditable(false);
-        display.setFont(new Font("Arial", Font.PLAIN, 30));
-        display.setBackground(new Color(240, 240, 240));
-        display.setHorizontalAlignment(JTextField.RIGHT);
-        display.setPreferredSize(new Dimension(400, 80));
-        calculatorPanel.add(display, BorderLayout.NORTH);
+        JTextField resultField = new JTextField();
+        resultField.setEditable(false);
+        calculatorPanel.add(resultField, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridBagLayout());
+        buttonPanel.setLayout(new GridLayout(4, 4, 5, 5));  // A grid layout with 4x4 buttons
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(5, 5, 5, 5);
+        // Buttons for the calculator
+        String[] buttons = {"7", "8", "9", "/",
+                             "4", "5", "6", "*",
+                             "1", "2", "3", "-",
+                             "0", "=", "+", "C"};
 
-        String[] buttonLabels = {
-                "7", "8", "9", "/",
-                "4", "5", "6", "*",
-                "1", "2", "3", "-",
-                "0", ".", "C", "+",
-                "%",
-                "="
-        };
-
-        int buttonIndex = 0;
-        for (int row = 0; row < 5; row++) {
-            for (int col = 0; col < 4; col++) {
-                if (buttonIndex < buttonLabels.length - 1) {
-                    String label = buttonLabels[buttonIndex];
-                    JButton button = new JButton(label);
-                    button.setFont(new Font("Arial", Font.PLAIN, 20));
-                    button.setPreferredSize(new Dimension(80, 80));
-                    button.setBackground(new Color(200, 200, 255));
-                    button.setForeground(new Color(0, 0, 0));
-
-                    gbc.gridx = col;
-                    gbc.gridy = row;
-                    gbc.weightx = 1.0;
-                    button.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            String command = e.getActionCommand();
-                            String currentText = display.getText();
-
-                            if ("=".equals(command)) {
-                                try {
-                                    double result = evaluateExpression(currentText);
-                                    if (result == (int) result) {
-                                        display.setText(String.valueOf((int) result));
-                                    } else {
-                                        display.setText(String.valueOf(result));
-                                    }
-                                } catch (Exception ex) {
-                                    display.setText("Error");
-                                }
-                            } else if ("C".equals(command)) {
-                                display.setText("");
-                            } else if ("%".equals(command)) {
-                                try {
-                                    double currentVal = Double.parseDouble(currentText);
-                                    double percentage = currentVal / 100;
-                                    if (percentage == (int) percentage) {
-                                        display.setText(String.valueOf((int) percentage));
-                                    } else {
-                                        display.setText(String.valueOf(percentage));
-                                    }
-                                } catch (Exception ex) {
-                                    display.setText("Error");
-                                }
-                            } else {
-                                display.setText(currentText + command);
-                            }
+        for (String text : buttons) {
+            JButton button = new JButton(text);
+            button.setFont(new Font("Arial", Font.PLAIN, 24)); // Set a bigger font for clarity
+            button.addActionListener(e -> {
+                String currentText = resultField.getText();
+                if (text.equals("C")) {
+                    resultField.setText(""); // Clear the text field
+                } else {
+                    // Add the number or operator to the result field
+                    if (text.equals("=")) {
+                        try {
+                            // Evaluate the expression and show result immediately
+                            resultField.setText(String.valueOf(evaluateExpression(currentText)));
+                        } catch (Exception ex) {
+                            resultField.setText("Error");
                         }
-                    });
-                    buttonPanel.add(button, gbc);
-                    buttonIndex++;
+                    } else {
+                        resultField.setText(currentText + text);
+                    }
                 }
-            }
+            });
+            buttonPanel.add(button);
         }
 
-        JButton equalsButton = new JButton("=");
-        equalsButton.setFont(new Font("Arial", Font.PLAIN, 20));
-        equalsButton.setPreferredSize(new Dimension(80, 80));
-        equalsButton.setBackground(new Color(255, 200, 200));
-        equalsButton.setForeground(new Color(0, 0, 0));
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 4;
-        equalsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String currentText = display.getText();
-                try {
-                    double result = evaluateExpression(currentText);
-                    if (result == (int) result) {
-                        display.setText(String.valueOf((int) result));
-                    } else {
-                        display.setText(String.valueOf(result));
-                    }
-                } catch (Exception ex) {
-                    display.setText("Error");
-                }
-            }
-        });
-        buttonPanel.add(equalsButton, gbc);
-
         calculatorPanel.add(buttonPanel, BorderLayout.CENTER);
-        calculatorFrame.add(calculatorPanel);
-        calculatorFrame.setVisible(true);
+        frame.add(calculatorPanel, BorderLayout.SOUTH);
+        frame.revalidate();  // Refresh the frame to show the calculator
     }
 
-    private static double evaluateExpression(String expression) throws Exception {
-        return new Object() {
-            int pos = -1, c;
-
-            void nextChar() {
-                c = (++pos < expression.length()) ? expression.charAt(pos) : -1;
+    // Method to evaluate the expression without decimals
+    private static int evaluateExpression(String expression) {
+        // If the expression contains an operator and operands, calculate the result
+        if (expression.contains("+")) {
+            String[] parts = expression.split("\\+");
+            return Integer.parseInt(parts[0]) + Integer.parseInt(parts[1]);
+        } else if (expression.contains("-")) {
+            String[] parts = expression.split("-");
+            return Integer.parseInt(parts[0]) - Integer.parseInt(parts[1]);
+        } else if (expression.contains("*")) {
+            String[] parts = expression.split("\\*");
+            return Integer.parseInt(parts[0]) * Integer.parseInt(parts[1]);
+        } else if (expression.contains("/")) {
+            String[] parts = expression.split("/");
+            int denominator = Integer.parseInt(parts[1]);
+            if (denominator != 0) {
+                return Integer.parseInt(parts[0]) / denominator;
+            } else {
+                return 0; // Avoid division by zero
             }
-
-            boolean eat(int charToEat) {
-                while (c == ' ') nextChar();
-                if (c == charToEat) {
-                    nextChar();
-                    return true;
-                }
-                return false;
-            }
-
-            double parse() throws Exception {
-                nextChar();
-                double x = parseExpression();
-                if (pos < expression.length()) throw new Exception("Unexpected: " + (char)c);
-                return x;
-            }
-
-            double parseExpression() throws Exception {
-                double x = parseTerm();
-                while (true) {
-                    if (eat('+')) x += parseTerm();
-                    else if (eat('-')) x -= parseTerm();
-                    else return x;
-                }
-            }
-
-            double parseTerm() throws Exception {
-                double x = parseFactor();
-                while (true) {
-                    if (eat('*')) x *= parseFactor();
-                    else if (eat('/')) x /= parseFactor();
-                    else return x;
-                }
-            }
-
-            double parseFactor() throws Exception {
-                if (eat('+')) return parseFactor();
-                if (eat('-')) return -parseFactor();
-
-                double x;
-                int startPos = this.pos;
-                if (eat('(')) {
-                    x = parseExpression();
-                    eat(')');
-                } else if ((c >= '0' && c <= '9') || c == '.') {
-                    while ((c >= '0' && c <= '9') || c == '.') nextChar();
-                    x = Double.parseDouble(expression.substring(startPos, this.pos));
-                } else {
-                    throw new Exception("Unexpected: " + (char)c);
-                }
-
-                return x;
-            }
-        }.parse();
+        }
+        return 0;
     }
 }
