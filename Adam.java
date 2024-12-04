@@ -36,9 +36,9 @@ public class Adam implements ActionListener {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (adam.showPasswordCheckBox.isSelected()) {
-                    adam.passwordText.setEchoChar((char) 0); // Show password
+                    adam.passwordText.setEchoChar((char) 0);
                 } else {
-                    adam.passwordText.setEchoChar('*'); // Hide password
+                    adam.passwordText.setEchoChar('*');
                 }
             }
         });
@@ -88,14 +88,13 @@ public class Adam implements ActionListener {
 
         if ("admin".equals(username) && "password".equals(new String(password))) {
             success.setText("Login Successful");
-            frame.dispose();  // Close the login screen
-            openCalculator();  // Open the calculator
+            frame.dispose();
+            openCalculator();
         } else {
             success.setText("Login Failed");
         }
     }
 
-    // Method to create and open the calculator
     private void openCalculator() {
         JFrame calcFrame = new JFrame("Calculator");
         calcFrame.setSize(400, 500);
@@ -109,13 +108,14 @@ public class Adam implements ActionListener {
         calcPanel.add(calcDisplay, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(4, 4));
+        buttonPanel.setLayout(new GridLayout(5, 4));
 
         String[] buttons = {
             "7", "8", "9", "/",
             "4", "5", "6", "*",
             "1", "2", "3", "-",
-            "0", ".", "=", "+"
+            "0", ".", "=", "+",
+            "%", "CE", "C"
         };
 
         for (String text : buttons) {
@@ -126,10 +126,20 @@ public class Adam implements ActionListener {
                     String command = e.getActionCommand();
                     if (command.equals("=")) {
                         try {
-                            calcDisplay.setText(String.valueOf(eval(calcDisplay.getText())));
+                            calcDisplay.setText(formatResult(eval(calcDisplay.getText())));
                         } catch (Exception ex) {
                             calcDisplay.setText("Error");
                         }
+                    } else if (command.equals("CE")) {
+                        String currentText = calcDisplay.getText();
+                        if (currentText.length() > 0) {
+                            calcDisplay.setText(currentText.substring(0, currentText.length() - 1));
+                        }
+                    } else if (command.equals("C")) {
+                        calcDisplay.setText("");
+                    } else if (command.equals("%")) {
+                        double value = Double.parseDouble(calcDisplay.getText());
+                        calcDisplay.setText(formatResult(value / 100));
                     } else {
                         calcDisplay.setText(calcDisplay.getText() + command);
                     }
@@ -143,7 +153,14 @@ public class Adam implements ActionListener {
         calcFrame.setVisible(true);
     }
 
-    // Simple method to evaluate the mathematical expression entered in the calculator
+    private String formatResult(double result) {
+        if (result == (int) result) {
+            return String.format("%d", (int) result);
+        } else {
+            return String.format("%s", result);
+        }
+    }
+
     private double eval(String expression) {
         return new Object() {
             int pos = -1, c;
