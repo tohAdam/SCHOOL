@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.util.Random;
 
 public class Gui {
     public static void main(String[] args) {
@@ -88,7 +90,7 @@ public class Gui {
         JTextField resultField = new JTextField();
         resultField.setEditable(false);
         resultField.setFont(new Font("Arial", Font.PLAIN, 36));
-        resultField.setHorizontalAlignment(SwingConstants.RIGHT);
+        resultField.setHorizontalAlignment(SwingConstants.CENTER);
         calculatorPanel.add(resultField, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel();
@@ -102,6 +104,17 @@ public class Gui {
         for (String text : buttons) {
             JButton button = new JButton(text);
             button.setFont(new Font("Arial", Font.PLAIN, 24));
+            button.setFocusPainted(false);
+            button.setBackground(new Color(135, 206, 235));
+
+            if (text.equals("=") || text.equals("+") || text.equals("-") || text.equals("*") || text.equals("/")) {
+                button.setBackground(getRandomColor());
+            } else if (text.equals("C")) {
+                button.setBackground(new Color(255, 165, 0));
+            }
+
+            button.setForeground(Color.WHITE);
+
             button.addActionListener(e -> {
                 String currentText = resultField.getText();
                 if (text.equals("C")) {
@@ -109,7 +122,12 @@ public class Gui {
                 } else {
                     if (text.equals("=")) {
                         try {
-                            resultField.setText(String.valueOf(evaluateExpression(currentText)));
+                            double result = evaluateExpression(currentText);
+                            if (result == (int) result) {
+                                resultField.setText(String.valueOf((int) result));
+                            } else {
+                                resultField.setText(String.valueOf(result));
+                            }
                         } catch (Exception ex) {
                             resultField.setText("Error");
                         }
@@ -118,6 +136,17 @@ public class Gui {
                     }
                 }
             });
+
+            button.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    button.setBackground(button.getBackground().darker());
+                }
+
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    button.setBackground(button.getBackground().brighter());
+                }
+            });
+
             buttonPanel.add(button);
         }
 
@@ -126,24 +155,33 @@ public class Gui {
         frame.revalidate();
     }
 
-    private static int evaluateExpression(String expression) {
-        if (expression.contains("+")) {
-            String[] parts = expression.split("\\+");
-            return Integer.parseInt(parts[0]) + Integer.parseInt(parts[1]);
-        } else if (expression.contains("-")) {
-            String[] parts = expression.split("-");
-            return Integer.parseInt(parts[0]) - Integer.parseInt(parts[1]);
-        } else if (expression.contains("*")) {
-            String[] parts = expression.split("\\*");
-            return Integer.parseInt(parts[0]) * Integer.parseInt(parts[1]);
-        } else if (expression.contains("/")) {
-            String[] parts = expression.split("/");
-            int denominator = Integer.parseInt(parts[1]);
-            if (denominator != 0) {
-                return Integer.parseInt(parts[0]) / denominator;
-            } else {
-                return 0;
+    private static Color getRandomColor() {
+        Random random = new Random();
+        return new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+    }
+
+    private static double evaluateExpression(String expression) {
+        try {
+            if (expression.contains("+")) {
+                String[] parts = expression.split("\\+");
+                return (int) (Double.parseDouble(parts[0]) + Double.parseDouble(parts[1]));
+            } else if (expression.contains("-")) {
+                String[] parts = expression.split("-");
+                return (int) (Double.parseDouble(parts[0]) - Double.parseDouble(parts[1]));
+            } else if (expression.contains("*")) {
+                String[] parts = expression.split("\\*");
+                return (int) (Double.parseDouble(parts[0]) * Double.parseDouble(parts[1]));
+            } else if (expression.contains("/")) {
+                String[] parts = expression.split("/");
+                double denominator = Double.parseDouble(parts[1]);
+                if (denominator != 0) {
+                    return (int) (Double.parseDouble(parts[0]) / denominator);
+                } else {
+                    return 0;
+                }
             }
+        } catch (Exception e) {
+            return 0;
         }
         return 0;
     }
